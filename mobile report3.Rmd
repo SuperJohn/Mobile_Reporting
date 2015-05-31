@@ -16,6 +16,7 @@ query <- readChar(query_file, file.info(query_file)$size)
 last_updated <- sqlQuery(conn,query)
 last_updated
 cat("This script was last run on ",format(Sys.time(), "%a %b %d %X %Y") )
+print("this is my update test!!!")
 
 ```
 
@@ -34,6 +35,15 @@ library(sqldf)
 # set connection
 conn <- odbcConnect("rfi_meta_data")
 #load data
+```
+
+```{r echo=FALSE,message=FALSE,warning=FALSE}
+# ETL
+jh_monthly_mobile_product<-read.csv(file="data/jh_monthly_mobile_product.csv")
+head(jh_monthly_mobile_product)
+date_diff1 <- Sys.Date() - max(as.Date(jh_monthly_mobile_product$day))
+
+
 ```
 
 <h1>Mobile <b>Sold-As</b> Monthly Revenue and Cost Summary</h1>
@@ -91,7 +101,7 @@ g <- ggplot(df, aes(x = month, y = projected_revenue, group = year, colour=as.fa
 g
 # http://stackoverflow.com/questions/13520639/ggplot-year-by-year-comparison
 ```
-
+getwd()
 <h1>Daily Revenue Trend</h1>
 <p>Dark Blue Line is a trend line</p>
 ```{r echo = FALSE, fig.width=10, fig.height=3, warning=FALSE,message=FALSE}
@@ -101,6 +111,13 @@ query <- readChar(query_file, file.info(query_file)$size)
 daily_revenue <- sqlQuery(conn,query)
 daily_revenue$date<-as.Date(daily_revenue$date, format="%Y/%m/%d")
 # create chart
+library(ggplot2)
+library(plyr)
+library(RODBC)
+library(lubridate)
+library(scales)
+library(reshape2)
+library(sqldf)
 ggplot(daily_revenue, aes(x = date, y = revenue,fill="blue")) + 
   geom_bar(stat = "identity") +
   theme_classic() +
@@ -127,6 +144,12 @@ knitr::kable(tail(regional_wide[,c(3:10)]))
 <p>% of total monthly mobile revenue by product</p>
 ```{r echo=FALSE, warning=FALSE, message=FALSE, fig.width=10, fig.height=3}
 # product breakdown by week
+library(RODBC)
+conn <- odbcConnect("rfi_meta_data")
+query_file <- 'product_breakdown_query.txt'
+query <- readChar(query_file, file.info(query_file)$size)
+product_breakdown <- sqlQuery(conn,query)
+library(lubridate)
 product_breakdown$week<-week(product_breakdown$date)
 product_breakdown$month<-month(product_breakdown$date, label = TRUE)
 product_breakdown$year<-year(product_breakdown$date)
