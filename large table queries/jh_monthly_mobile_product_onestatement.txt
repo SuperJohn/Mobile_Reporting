@@ -1,7 +1,3 @@
--- drop existing table in order to overwrite with current data
-drop table rfi_test.jh_monthly_mobile_product; 
--- set number of months to pull, which affects query time, i.e. 12 = 3 mins, 1 = 44 secs
-set @months=12;
 create table rfi_test.jh_monthly_mobile_product as
 
     SELECT 

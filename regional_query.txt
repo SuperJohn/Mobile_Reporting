@@ -1,5 +1,5 @@
-select year(day) as year
-, month(day) as month
+select year(date) as year
+, month(date) as month
 , month_year
 , region
 , round(sum(rfi_revenue), 0) as revenue
@@ -10,8 +10,8 @@ where lower(region) <> "brazil"
 and lower(region) <> "australia"
 and lower(region) <> " "
 and region is not null
-group by year(day)
-, month(day)
+group by year(date)
+, month(date)
 , month_year 
 , region
-order by year(day), month(day) asc
+order by year(date), month(date) asc

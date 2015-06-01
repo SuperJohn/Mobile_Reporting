@@ -16,7 +16,6 @@ query <- readChar(query_file, file.info(query_file)$size)
 last_updated <- sqlQuery(conn,query)
 last_updated
 cat("This script was last run on ",format(Sys.time(), "%a %b %d %X %Y") )
-print("this is my update test!!!")
 
 ```
 
@@ -39,11 +38,28 @@ conn <- odbcConnect("rfi_meta_data")
 
 ```{r echo=FALSE,message=FALSE,warning=FALSE}
 # ETL
-jh_monthly_mobile_product<-read.csv(file="data/jh_monthly_mobile_product.csv")
-head(jh_monthly_mobile_product)
-date_diff1 <- Sys.Date() - max(as.Date(jh_monthly_mobile_product$day))
-
-
+if(exists("jh_monthly_mobile_product")==TRUE)
+  { # see how old the data is
+    date_diff1<-Sys.Date()-max(as.Date(jh_monthly_mobile_product$day))
+  }else{ # try and pull the data from the .csv
+    jh_monthly_mobile_product<-read.csv(file="data/jh_monthly_mobile_product.csv")
+    date_diff1<-Sys.Date()-max(as.Date(jh_monthly_mobile_product$day))
+  }
+if(date_diff1<5){ # if the data is current, then display how old it is
+    cat("this table was updated ",as.integer(date_diff1)," days ago")  
+  }else{ # if the data is old, then drop the old table, update it, and write to csv, and load to memory
+    library(RODBC)
+    conn <- odbcConnect("rfi_meta_data")
+    query_file <- 'large table queries/jh_monthly_mobile_product_onestatement.txt'
+    query <- readChar(query_file, file.info(query_file)$size)
+    sqlQuery(conn,'drop table rfi_test.jh_monthly_mobile_product') # drop existing table
+    sqlQuery(conn,'set @months=12') # set variable
+    sqlQuery(conn,query) # create table
+    jh_monthly_mobile_product <- sqlQuery(conn,'select * from rfi_test.jh_monthly_mobile_product')
+    write.csv(jh_monthly_mobile_product,file="data/jh_monthly_mobile_product.csv", row.names=FALSE)
+    date_diff1<-Sys.Date()-max(as.Date(jh_monthly_mobile_product$date))
+    cat("jh_monthly_mobile_product was just updated and has ", as.integer(date_diff1)," day old data")  
+  }
 ```
 
 <h1>Mobile <b>Sold-As</b> Monthly Revenue and Cost Summary</h1>

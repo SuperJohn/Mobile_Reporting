@@ -1,6 +1,6 @@
-select year(day) as year
-, month(day) as month_num
-, date_format(day,'%b') as month
+select year(date) as year
+, month(date) as month_num
+, date_format(date,'%b') as month
 , month_year
 , round(sum(rfi_revenue),0) as revenue
 , round( 1 / (dayofmonth(max(date)) / dayofmonth(last_day(min(date)))) * sum(rfi_revenue) ,0) as projected_revenue
@@ -14,7 +14,7 @@ select year(day) as year
 , dayofmonth(max(date)) as days_completed
 , dayofmonth(last_day(min(date))) as num_days
  from rfi_test.jh_monthly_mobile_product
-group by year(day)
-, month(day)
-, date_format(day,'%b')
+group by year(date)
+, month(date)
+, date_format(date,'%b')
 , month_year
